@@ -26,14 +26,40 @@ export default function Page(){
   const [newJob,setNewJob]=useState({title:'',company:'',location:'Polokwane',salary:'',closing:'',desc:''});
 
   useEffect(()=>{
-    if(window.location.search.includes('admin=george')) setIsAdmin(true);
     const saved=localStorage.getItem('limpopo_jobs');
-    if(saved) setJobs(JSON.parse(saved));
+    if(saved){ try{setJobs(JSON.parse(saved))}catch{} }
+    // YOU ARE ONLY ADMIN - secret link
+    if(window.location.search.includes('admin=george777')){
+      setIsAdmin(true);
+      localStorage.setItem('isAdmin','yes');
+    } else if(localStorage.getItem('isAdmin')==='yes'){
+      setIsAdmin(true);
+    }
   },[]);
 
   const saveJobs=(j:any)=>{setJobs(j);localStorage.setItem('limpopo_jobs',JSON.stringify(j));};
-  const addJob=()=>{if(!newJob.title) return alert('Add title!');const j={id:Date.now(),...newJob};const u=[j,...jobs];saveJobs(u);setNewJob({title:'',company:'',location:'Polokwane',salary:'',closing:'',desc:''});alert('Added!');};
+  const addJob=()=>{if(!newJob.title) return alert('Add title!'); const j={id:Date.now(),...newJob}; saveJobs([j,...jobs]); setNewJob({title:'',company:'',location:'Polokwane',salary:'',closing:'',desc:''}); alert('Added!');};
   const deleteJob=(id:number)=>{if(confirm('Delete?')) saveJobs(jobs.filter(j=>j.id!==id));};
-  
+
   const handleApply = (job:any) => {
-    const random
+    const randomLink = DIRECT_LINKS[Math.floor(Math.random()*DIRECT_LINKS.length)];
+    window.open(randomLink, '_blank');
+    const query = encodeURIComponent(job.title + ' ' + job.company + ' ' + job.location + ' jobs South Africa');
+    setTimeout(()=>{ window.open('https://www.google.com/search?q='+query,'_blank'); }, 700);
+  };
+
+  const filtered=jobs.filter(j=>(j.title+j.company+j.location).toLowerCase().includes(search.toLowerCase()));
+
+  if(isAdmin){
+    return(
+      <div style={{maxWidth:700,margin:'0 auto',padding:20}}>
+        <h2>ADMIN - George Only</h2>
+        <button onClick={()=>{setIsAdmin(false);localStorage.removeItem('isAdmin'); window.location.href='/';}} style={{background:'black',color:'white',padding:10,borderRadius:8,marginBottom:15}}>Exit Admin - View Public Site</button>
+        <div style={{border:'1px solid #ccc',padding:15,borderRadius:10,display:'grid',gap:10}}>
+          <input placeholder="Job Title" value={newJob.title} onChange={e=>setNewJob({...newJob,title:e.target.value})} style={{padding:10}}/>
+          <input placeholder="Company" value={newJob.company} onChange={e=>setNewJob({...newJob,company:e.target.value})} style={{padding:10}}/>
+          <input placeholder="Location" value={newJob.location} onChange={e=>setNewJob({...newJob,location:e.target.value})} style={{padding:10}}/>
+          <input placeholder="Salary" value={newJob.salary} onChange={e=>setNewJob({...newJob,salary:e.target.value})} style={{padding:10}}/>
+          <input placeholder="Closing" value={newJob.closing} onChange={e=>setNewJob({...newJob,closing:e.target.value})} style={{padding:10}}/>
+          <textarea placeholder="Description" value={newJob.desc} onChange={e=>setNewJob({...newJob,desc:e.target.value})} style={{padding:10}}/>
+          <button onClick={addJob} style={{background:'green',color
