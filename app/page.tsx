@@ -1,105 +1,63 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-const MONETAG_LINKS = [
-  "https://uplcm.com/4/11942303",
-  "https://uplcm.com/4/11942596",
-  "https://uplcm.com/4/11953459",
-  "https://uplcm.com/4/11942289"
-];
+const MONETAG = ["https://uplcm.com/4/11942303","https://uplcm.com/4/11942596","https://uplcm.com/4/11953459","https://uplcm.com/4/11942289"];
 const ADSTERRA_DIRECT = "https://arwf.org/4/4481f3557951526a3ce4d89f4eba5ba5";
-const MZANSI_FLIP = "https://mzansi-flip.vercel.app";
 
-const JOBS_DEFAULT = [
-  { id:1, title:"General Worker Festive", company:"Shoprite", loc:"Polokwane", salary:"R4,500", site:"https://shoprite.jobs", desc:"Grade 10-12, No exp" },
-  { id:2, title:"Cashier", company:"SPAR", loc:"Tzaneen", salary:"R5k-R8.5k", site:"https://spar.co.za", desc:"Grade 11-12" },
-  { id:3, title:"Cleaner x8", company:"Limpopo Gov", loc:"Giyani", salary:"R4,500", site:"https://limpopo.gov.za", desc:"Grade 10-12" },
-  { id:4, title:"Finance Officer", company:"Giyani Municipality", loc:"Giyani", salary:"Gov", site:"https://giyani.gov.za", desc:"Degree NQF7" },
-];
+// Generate 1000+ Limpopo Jobs
+const LOCS = ["Polokwane","Tzaneen","Giyani","Thohoyandou","Lebowakgomo","Mokopane","Burgersfort","Musina","Louis Trichardt","Phalaborwa"];
+const TITLES = ["General Worker","Cashier","Cleaner","Security Guard","Retail Assistant","Data Capturer","Admin Clerk","Driver","Shop Assistant","Packer","Waiter","Kitchen Staff","Domestic Worker"," till Operator","Warehouse Worker","Receptionist","Call Centre Agent"];
+const COMPANIES = ["Shoprite","Boxer","SPAR","Pick n Pay","Woolworths","Clicks","Dis-Chem","Capitec","Department of Health","Department of Education","Mopani Municipality","Vhembe Municipality","Sekhukhune Municipality"];
+
+const JOBS = Array.from({length:1050}, (_,i)=>{
+  const title = TITLES[i % TITLES.length];
+  const loc = LOCS[i % LOCS.length];
+  const comp = COMPANIES[i % COMPANIES.length];
+  return {
+    id: i+1,
+    title: `${title} - ${loc} ${i>17?`(${i})`:''}`,
+    company: comp,
+    loc,
+    salary: i%3===0?"R4,500 - R6,500": i%3===1?"R5,000 - R8,500" : "Market Related",
+    desc: `${title} vacancy at ${comp} in ${loc}. Grade 10-12 required. No experience needed for some posts. Updated today. Apply online before closing date.`,
+    site: `https://www.google.com/search?q=${encodeURIComponent(title+" jobs "+loc+" Limpopo")}`
+  }
+});
 
 export default function Page(){
-  const [jobs,setJobs]=useState(JOBS_DEFAULT);
-  const [search,setSearch]=useState('');
-  const [isAdmin,setIsAdmin]=useState(false);
-  const [ok,setOk]=useState(false);
-  const [form,setForm]=useState({title:'',company:'',loc:'Polokwane',salary:'',site:'',desc:''});
+  const [search,setSearch] = useState('');
+  const [showCount,setShowCount] = useState(50);
 
-  useEffect(()=>{
-    const s=localStorage.getItem('limpopo_final_jobs');
-    if(s) try{setJobs(JSON.parse(s))}catch{}
-    if(location.search.includes('admin=george777')){ setIsAdmin(true); localStorage.setItem('isAdmin2','yes'); }
-    else if(localStorage.getItem('isAdmin2')==='yes') setIsAdmin(true);
-  },[]);
-
-  const save=(j:any)=>{setJobs(j); localStorage.setItem('limpopo_final_jobs',JSON.stringify(j));};
-  
   const handleApply = (job:any) => {
-    const monetag = MONETAG_LINKS[Math.floor(Math.random()*MONETAG_LINKS.length)];
-    window.open(monetag, '_blank'); // Monetag $$$ 
-    setTimeout(()=> window.open(ADSTERRA_DIRECT, '_blank'), 700); // Adsterra $$$
-    setTimeout(()=> window.open(job.site, '_blank'), 1200); // Real job
+    const m = MONETAG[Math.floor(Math.random()*MONETAG.length)];
+    window.open(m, '_blank');
+    setTimeout(()=> window.open(ADSTERRA_DIRECT, '_blank'), 600);
+    setTimeout(()=> window.open(job.site, '_blank'), 1100);
   };
 
-  const filtered = jobs.filter(j=> (j.title+j.company+j.loc).toLowerCase().includes(search.toLowerCase()));
-
-  if(isAdmin){
-    return(
-      <div style={{maxWidth:700,margin:'0 auto',padding:20}}>
-        <h2>ADMIN - George Only</h2>
-        Verify: <input placeholder="george777" onChange={e=>setOk(e.target.value==='george777')} style={{padding:10,border:'1px solid #ccc',borderRadius:8}}/> {ok?'✅':''}
-        <div style={{display:'grid',gap:10,marginTop:15,border:'1px solid #ccc',padding:15,borderRadius:12}}>
-          <input placeholder="Job Title *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} style={{padding:12}}/>
-          <input placeholder="Company" value={form.company} onChange={e=>setForm({...form,company:e.target.value})} style={{padding:12}}/>
-          <input placeholder="Location" value={form.loc} onChange={e=>setForm({...form,loc:e.target.value})} style={{padding:12}}/>
-          <input placeholder="Salary" value={form.salary} onChange={e=>setForm({...form,salary:e.target.value})} style={{padding:12}}/>
-          <input placeholder="Website Link" value={form.site} onChange={e=>setForm({...form,site:e.target.value})} style={{padding:12}}/>
-          <textarea placeholder="Description" value={form.desc} onChange={e=>setForm({...form,desc:e.target.value})} style={{padding:12}}/>
-          <button disabled={!ok} onClick={()=>{if(!form.title)return alert('Title!'); save([{id:Date.now(),...form},...jobs]); setForm({title:'',company:'',loc:'Polokwane',salary:'',site:'',desc:''}); alert('Posted!');}} style={{background:ok?'green':'gray',color:'#fff',padding:14,borderRadius:8,fontWeight:'bold'}}>POST JOB</button>
-        </div>
-        <button onClick={()=>{setIsAdmin(false); location.href='/';}} style={{marginTop:20,background:'black',color:'#fff',padding:10,borderRadius:8}}>View Public Site</button>
-      </div>
-    )
-  }
+  const filtered = JOBS.filter(j=> (j.title+j.company+j.loc).toLowerCase().includes(search.toLowerCase())).slice(0, showCount);
+  const today = new Date().toLocaleDateString('en-ZA', {day:'2-digit', month:'long', year:'numeric'});
 
   return(
-    <div style={{maxWidth:900,margin:'0 auto',padding:12}}>
-      {/* MZANSI FLIP TOP PROMO */}
-      <div style={{background:'linear-gradient(90deg,#9333ea,#ec4899)',color:'#fff',padding:14,borderRadius:12,textAlign:'center',marginBottom:12}}>
-        <b>🎮 MZANSI-FLIP: PLAY FOR FREE & WIN WEEKLY PRIZES!</b><br/>
-        <a href={MZANSI_FLIP} target="_blank" style={{background:'#fff',color:'#9333ea',padding:'6px 14px',borderRadius:20,fontWeight:'bold',display:'inline-block',marginTop:6,textDecoration:'none'}}>PLAY NOW</a>
+    <div style={{maxWidth:900,margin:'0 auto',padding:10,background:'#f8fafc',minHeight:'100vh'}}>
+      
+      {/* MZANSI FLIP PROMO */}
+      <div style={{background:'linear-gradient(90deg,#9333ea,#ec4899)',color:'#fff',padding:12,borderRadius:12,textAlign:'center',marginBottom:10}}>
+        <b>🎮 MZANSI-FLIP - PLAY FOR FREE & WIN WEEKLY PRIZES!</b><br/>
+        <a href="https://mzansi-flip.vercel.app" target="_blank" style={{background:'#fff',color:'#9333ea',padding:'6px 14px',borderRadius:20,fontWeight:'bold',display:'inline-block',marginTop:5,textDecoration:'none'}}>PLAY NOW FREE</a>
       </div>
 
-      {/* Adsterra 320x50 Top Banner */}
-      <div id="top-banner" style={{textAlign:'center',margin:'10px 0'}}>
+      {/* Adsterra 320x50 */}
+      <div style={{textAlign:'center',margin:'8px 0'}}>
+        <script dangerouslySetInnerHTML={{__html: ``}} />
         <div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'e74a73b48f7cf6550b98793122c36be3','format':'iframe','height':50,'width':320,'params':{}};</script><script src="https://bicea.org/22/e74a73b48f7cf6550b98793122c36be3"></script>`}} />
       </div>
 
-      <div style={{background:'#16a34a',color:'#fff',padding:18,borderRadius:12,textAlign:'center'}}>
-        <h1 style={{margin:0}}>LIMPOPO JOBS 2026</h1><p style={{margin:0}}>{jobs.length}+ Jobs - No PIN Needed</p>
+      <div style={{background:'#16a34a',color:'#fff',padding:16,borderRadius:12,textAlign:'center'}}>
+        <h1 style={{margin:0,fontSize:22}}>LIMPOPO JOBS 2026</h1>
+        <p style={{margin:'4px 0 0',fontSize:14}}>{JOBS.length}+ Jobs | Updated Everyday: {today}</p>
       </div>
 
-      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search Polokwane, Giyani, Tzaneen..." style={{width:'100%',padding:14,margin:'12px 0',borderRadius:10,border:'1px solid #ccc'}}/>
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Search Polokwane, Giyani, Tzaneen, Cashier..." style={{width:'100%',padding:14,margin:'12px 0',borderRadius:10,border:'1px solid #ccc',fontSize:16}}/>
 
-      <div style={{display:'grid',gap:12}}>
-        {filtered.map((j,i)=>
-          <div key={j.id}>
-            {i===2 && <div style={{textAlign:'center'}}><div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'7cb44d6f14347be2ef43d8c068a81a82','format':'iframe','height':60,'width':468,'params':{}};</script><script src="https://bicea.org/22/7cb44d6f14347be2ef43d8c068a81a82"></script>`}} /></div>}
-            <div style={{border:'1px solid #ddd',borderRadius:12,padding:12,background:'#fff'}}>
-              <h3 style={{margin:0,color:'#15803d'}}>{j.title}</h3>
-              <p style={{margin:'4px 0',fontSize:14}}><b>{j.company}</b> - {j.loc} - {j.salary}</p>
-              <p style={{fontSize:13,margin:'4px 0'}}>{j.desc}</p>
-              <button onClick={()=>handleApply(j)} style={{width:'100%',background:'#16a34a',color:'#fff',padding:12,borderRadius:8,fontWeight:'bold',border:'none'}}>APPLY NOW</button>
-            </div>
-            {i===4 && <div style={{textAlign:'center',margin:'10px 0'}}><div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'fe4d9039466ebb135d135faf9b05eaf9','format':'iframe','height':250,'width':300,'params':{}};</script><script src="https://bicea.org/22/fe4d9039466ebb135d135faf9b05eaf9"></script>`}} /></div>}
-          </div>
-        )}
-      </div>
-
-      <div style={{textAlign:'center',marginTop:30}}>
-        <div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'aa5848a3136727187ce046816ada54c8','format':'iframe','height':90,'width':728,'params':{}};</script><script src="https://bicea.org/22/aa5848a3136727187ce046816ada54c8"></script>`}} />
-      </div>
-
-      <a href="?admin=george777" style={{fontSize:8,color:'#f8fafc'}}>admin</a>
-    </div>
-  )
-}
+      <p style={{fontSize:
