@@ -1,105 +1,105 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-// --- YOUR MONEY LINKS - CHANGE THESE ---
-const MONETAG_DIRECT_LINK = "https://uplcm.com/4/11942303"; // Your Monetag
-const ADSTERRA_DIRECT_LINK = "https://www.highperformanceformat.com/xxxx"; // Your Adsterra - PASTE YOUR LINK HERE
-const MZANSI_FLIP_LINK = "https://mzansi-flip.vercel.app"; // Your game link
+const MONETAG_LINKS = [
+  "https://uplcm.com/4/11942303",
+  "https://uplcm.com/4/11942596",
+  "https://uplcm.com/4/11953459",
+  "https://uplcm.com/4/11942289"
+];
+const ADSTERRA_DIRECT = "https://arwf.org/4/4481f3557951526a3ce4d89f4eba5ba5";
+const MZANSI_FLIP = "https://mzansi-flip.vercel.app";
 
-const DEFAULT_JOBS = [
-  { id:1, title:"General Worker Festive", company:"Shoprite", location:"Polokwane", salary:"R4,500-R6,500", website:"https://shoprite.jobs", desc:"Grade 10-12 needed, No experience. Apply at Shoprite careers." },
-  { id:2, title:"Cashier", company:"SPAR", location:"Tzaneen", salary:"R5k-R8.5k", website:"https://spar.co.za", desc:"Grade 11-12, till operator, customer service." },
-  { id:3, title:"Cleaner x8 Posts", company:"Limpopo Dept", location:"Giyani", salary:"R4,500", website:"https://limpopo.gov.za", desc:"Grade 10-12, cleaning experience advantage." },
-  // Add more jobs - you can add 100+ via Admin panel
+const JOBS_DEFAULT = [
+  { id:1, title:"General Worker Festive", company:"Shoprite", loc:"Polokwane", salary:"R4,500", site:"https://shoprite.jobs", desc:"Grade 10-12, No exp" },
+  { id:2, title:"Cashier", company:"SPAR", loc:"Tzaneen", salary:"R5k-R8.5k", site:"https://spar.co.za", desc:"Grade 11-12" },
+  { id:3, title:"Cleaner x8", company:"Limpopo Gov", loc:"Giyani", salary:"R4,500", site:"https://limpopo.gov.za", desc:"Grade 10-12" },
+  { id:4, title:"Finance Officer", company:"Giyani Municipality", loc:"Giyani", salary:"Gov", site:"https://giyani.gov.za", desc:"Degree NQF7" },
 ];
 
 export default function Page(){
-  const [jobs,setJobs]=useState(DEFAULT_JOBS);
+  const [jobs,setJobs]=useState(JOBS_DEFAULT);
   const [search,setSearch]=useState('');
   const [isAdmin,setIsAdmin]=useState(false);
-  const [verified,setVerified]=useState(false);
-  const [newJob,setNewJob]=useState({title:'',company:'',location:'',salary:'',website:'',desc:''});
+  const [ok,setOk]=useState(false);
+  const [form,setForm]=useState({title:'',company:'',loc:'Polokwane',salary:'',site:'',desc:''});
 
   useEffect(()=>{
-    const saved=localStorage.getItem('limpopo_jobs_final');
-    if(saved){ try{setJobs(JSON.parse(saved))}catch{} }
-    if(window.location.search.includes('admin=george777')){ setIsAdmin(true); localStorage.setItem('isAdminFinal','yes'); }
-    else if(localStorage.getItem('isAdminFinal')==='yes'){ setIsAdmin(true); }
-    // Load Monetag + Adsterra codes here if you have script tags from dashboard
+    const s=localStorage.getItem('limpopo_final_jobs');
+    if(s) try{setJobs(JSON.parse(s))}catch{}
+    if(location.search.includes('admin=george777')){ setIsAdmin(true); localStorage.setItem('isAdmin2','yes'); }
+    else if(localStorage.getItem('isAdmin2')==='yes') setIsAdmin(true);
   },[]);
 
-  const saveJobs=(j:any)=>{setJobs(j); localStorage.setItem('limpopo_jobs_final',JSON.stringify(j));};
-  const addJob=()=>{ if(!verified) return alert('Please verify you are George! Enter code: george777'); if(!newJob.title) return alert('Title required'); const j={id:Date.now(),...newJob}; saveJobs([j,...jobs]); setNewJob({title:'',company:'',location:'',salary:'',website:'',desc:''}); alert('Job Posted! Now showing to public!'); };
-
+  const save=(j:any)=>{setJobs(j); localStorage.setItem('limpopo_final_jobs',JSON.stringify(j));};
+  
   const handleApply = (job:any) => {
-    // 1. Earn - Open Monetag
-    window.open(MONETAG_DIRECT_LINK, '_blank');
-    // 2. Earn - Open Adsterra after 0.5 sec
-    setTimeout(()=>{ window.open(ADSTERRA_DIRECT_LINK, '_blank'); }, 600);
-    // 3. Then go to real job website
-    setTimeout(()=>{ window.open(job.website || 'https://www.google.com/search?q='+encodeURIComponent(job.title+' '+job.location), '_blank'); }, 1200);
+    const monetag = MONETAG_LINKS[Math.floor(Math.random()*MONETAG_LINKS.length)];
+    window.open(monetag, '_blank'); // Monetag $$$ 
+    setTimeout(()=> window.open(ADSTERRA_DIRECT, '_blank'), 700); // Adsterra $$$
+    setTimeout(()=> window.open(job.site, '_blank'), 1200); // Real job
   };
 
-  const filtered = jobs.filter(j=> (j.title+j.company+j.location+j.desc).toLowerCase().includes(search.toLowerCase()));
+  const filtered = jobs.filter(j=> (j.title+j.company+j.loc).toLowerCase().includes(search.toLowerCase()));
 
   if(isAdmin){
     return(
       <div style={{maxWidth:700,margin:'0 auto',padding:20}}>
-        <h2>ADMIN PANEL - George Only ✅</h2>
-        <div style={{background:'#fef3c7',padding:10,borderRadius:8,marginBottom:10}}>
-          Verification: <input placeholder="Enter george777" onChange={e=> setVerified(e.target.value==='george777')} style={{padding:8}}/>
-          {verified ? ' ✅ Verified' : ' ❌ Not verified'}
+        <h2>ADMIN - George Only</h2>
+        Verify: <input placeholder="george777" onChange={e=>setOk(e.target.value==='george777')} style={{padding:10,border:'1px solid #ccc',borderRadius:8}}/> {ok?'✅':''}
+        <div style={{display:'grid',gap:10,marginTop:15,border:'1px solid #ccc',padding:15,borderRadius:12}}>
+          <input placeholder="Job Title *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} style={{padding:12}}/>
+          <input placeholder="Company" value={form.company} onChange={e=>setForm({...form,company:e.target.value})} style={{padding:12}}/>
+          <input placeholder="Location" value={form.loc} onChange={e=>setForm({...form,loc:e.target.value})} style={{padding:12}}/>
+          <input placeholder="Salary" value={form.salary} onChange={e=>setForm({...form,salary:e.target.value})} style={{padding:12}}/>
+          <input placeholder="Website Link" value={form.site} onChange={e=>setForm({...form,site:e.target.value})} style={{padding:12}}/>
+          <textarea placeholder="Description" value={form.desc} onChange={e=>setForm({...form,desc:e.target.value})} style={{padding:12}}/>
+          <button disabled={!ok} onClick={()=>{if(!form.title)return alert('Title!'); save([{id:Date.now(),...form},...jobs]); setForm({title:'',company:'',loc:'Polokwane',salary:'',site:'',desc:''}); alert('Posted!');}} style={{background:ok?'green':'gray',color:'#fff',padding:14,borderRadius:8,fontWeight:'bold'}}>POST JOB</button>
         </div>
-        <button onClick={()=>{setIsAdmin(false); localStorage.removeItem('isAdminFinal'); location.href='/';}} style={{background:'black',color:'#fff',padding:10,borderRadius:8}}>View Public Site</button>
-        <div style={{border:'1px solid #ccc',padding:15,borderRadius:12,display:'grid',gap:10,marginTop:15}}>
-          <input placeholder="Job Title *" value={newJob.title} onChange={e=>setNewJob({...newJob,title:e.target.value})} style={{padding:12,borderRadius:8,border:'1px solid #ccc'}}/>
-          <input placeholder="Company" value={newJob.company} onChange={e=>setNewJob({...newJob,company:e.target.value})} style={{padding:12,borderRadius:8,border:'1px solid #ccc'}}/>
-          <input placeholder="Job Location (e.g. Polokwane)" value={newJob.location} onChange={e=>setNewJob({...newJob,location:e.target.value})} style={{padding:12,borderRadius:8,border:'1px solid #ccc'}}/>
-          <input placeholder="Salary" value={newJob.salary} onChange={e=>setNewJob({...newJob,salary:e.target.value})} style={{padding:12,borderRadius:8,border:'1px solid #ccc'}}/>
-          <input placeholder="Job Website Link (where to apply)" value={newJob.website} onChange={e=>setNewJob({...newJob,website:e.target.value})} style={{padding:12,borderRadius:8,border:'1px solid #ccc'}}/>
-          <textarea placeholder="Job Description" value={newJob.desc} onChange={e=>setNewJob({...newJob,desc:e.target.value})} style={{padding:12,borderRadius:8,border:'1px solid #ccc'}}/>
-          <button onClick={addJob} disabled={!verified} style={{background: verified?'green':'gray',color:'#fff',padding:14,borderRadius:8,fontWeight:'bold'}}>POST JOB - Add to 100+ List</button>
-        </div>
-        <h3>Total Jobs: {jobs.length}</h3>
+        <button onClick={()=>{setIsAdmin(false); location.href='/';}} style={{marginTop:20,background:'black',color:'#fff',padding:10,borderRadius:8}}>View Public Site</button>
       </div>
     )
   }
 
   return(
-    <div style={{maxWidth:900,margin:'0 auto',padding:15,background:'#f8fafc',minHeight:'100vh'}}>
-      
-      {/* TOP PROMO - MZANSI FLIP */}
-      <div style={{background:'linear-gradient(90deg,#9333ea,#ec4899)',color:'#fff',padding:15,borderRadius:12,textAlign:'center',marginBottom:15}}>
-        <h3 style={{margin:0}}>🎮 MZANSI-FLIP - PLAY FOR FREE!</h3>
-        <p style={{margin:'5px 0'}}>Win Weekly Prizes - Airtime, Cash & More!</p>
-        <a href={MZANSI_FLIP_LINK} target="_blank" style={{background:'#fff',color:'#9333ea',padding:'8px 16px',borderRadius:20,fontWeight:'bold',display:'inline-block',textDecoration:'none',marginTop:5}}>PLAY NOW - FREE ENTRY</a>
+    <div style={{maxWidth:900,margin:'0 auto',padding:12}}>
+      {/* MZANSI FLIP TOP PROMO */}
+      <div style={{background:'linear-gradient(90deg,#9333ea,#ec4899)',color:'#fff',padding:14,borderRadius:12,textAlign:'center',marginBottom:12}}>
+        <b>🎮 MZANSI-FLIP: PLAY FOR FREE & WIN WEEKLY PRIZES!</b><br/>
+        <a href={MZANSI_FLIP} target="_blank" style={{background:'#fff',color:'#9333ea',padding:'6px 14px',borderRadius:20,fontWeight:'bold',display:'inline-block',marginTop:6,textDecoration:'none'}}>PLAY NOW</a>
+      </div>
+
+      {/* Adsterra 320x50 Top Banner */}
+      <div id="top-banner" style={{textAlign:'center',margin:'10px 0'}}>
+        <div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'e74a73b48f7cf6550b98793122c36be3','format':'iframe','height':50,'width':320,'params':{}};</script><script src="https://bicea.org/22/e74a73b48f7cf6550b98793122c36be3"></script>`}} />
       </div>
 
       <div style={{background:'#16a34a',color:'#fff',padding:18,borderRadius:12,textAlign:'center'}}>
-        <h1 style={{margin:0}}>LIMPOPO JOBS 2026</h1>
-        <p style={{margin:'5px 0 0'}}>{jobs.length}+ Real Jobs - Updated Daily</p>
+        <h1 style={{margin:0}}>LIMPOPO JOBS 2026</h1><p style={{margin:0}}>{jobs.length}+ Jobs - No PIN Needed</p>
       </div>
 
-      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Search Job Title, Location (Polokwane, Giyani...)" style={{width:'100%',padding:14,margin:'15px 0',borderRadius:10,border:'1px solid #ccc'}}/>
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search Polokwane, Giyani, Tzaneen..." style={{width:'100%',padding:14,margin:'12px 0',borderRadius:10,border:'1px solid #ccc'}}/>
 
       <div style={{display:'grid',gap:12}}>
-        {filtered.map(j=>
-          <div key={j.id} style={{border:'1px solid #ddd',borderRadius:12,padding:14,background:'#fff'}}>
-            <h3 style={{margin:'0 0 4px',color:'#15803d'}}>{j.title}</h3>
-            <p style={{margin:0,fontSize:14}}><b>{j.company}</b> | 📍 {j.location} | 💰 {j.salary}</p>
-            <p style={{fontSize:13,margin:'6px 0',color:'#444'}}>{j.desc}</p>
-            {j.website && <p style={{fontSize:11,color:'blue',margin:'4px 0'}}>🌐 {j.website}</p>}
-            <button onClick={()=>handleApply(j)} style={{width:'100%',background:'#16a34a',color:'#fff',padding:13,borderRadius:8,fontWeight:'bold',border:'none',marginTop:8}}>APPLY NOW - View Details</button>
+        {filtered.map((j,i)=>
+          <div key={j.id}>
+            {i===2 && <div style={{textAlign:'center'}}><div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'7cb44d6f14347be2ef43d8c068a81a82','format':'iframe','height':60,'width':468,'params':{}};</script><script src="https://bicea.org/22/7cb44d6f14347be2ef43d8c068a81a82"></script>`}} /></div>}
+            <div style={{border:'1px solid #ddd',borderRadius:12,padding:12,background:'#fff'}}>
+              <h3 style={{margin:0,color:'#15803d'}}>{j.title}</h3>
+              <p style={{margin:'4px 0',fontSize:14}}><b>{j.company}</b> - {j.loc} - {j.salary}</p>
+              <p style={{fontSize:13,margin:'4px 0'}}>{j.desc}</p>
+              <button onClick={()=>handleApply(j)} style={{width:'100%',background:'#16a34a',color:'#fff',padding:12,borderRadius:8,fontWeight:'bold',border:'none'}}>APPLY NOW</button>
+            </div>
+            {i===4 && <div style={{textAlign:'center',margin:'10px 0'}}><div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'fe4d9039466ebb135d135faf9b05eaf9','format':'iframe','height':250,'width':300,'params':{}};</script><script src="https://bicea.org/22/fe4d9039466ebb135d135faf9b05eaf9"></script>`}} /></div>}
           </div>
         )}
       </div>
 
-      {filtered.length===0 && <p style={{textAlign:'center',padding:30}}>No jobs found for "{search}"</p>}
-
-      <div style={{textAlign:'center',marginTop:40,padding:20}}>
-        <p style={{fontSize:12,color:'#888'}}>© 2026 Limpopo Jobs - All rights reserved</p>
-        <a href="?admin=george777" style={{fontSize:8,color:'#f8fafc'}}>admin</a>
+      <div style={{textAlign:'center',marginTop:30}}>
+        <div dangerouslySetInnerHTML={{__html: `<script>atOptions={'key':'aa5848a3136727187ce046816ada54c8','format':'iframe','height':90,'width':728,'params':{}};</script><script src="https://bicea.org/22/aa5848a3136727187ce046816ada54c8"></script>`}} />
       </div>
+
+      <a href="?admin=george777" style={{fontSize:8,color:'#f8fafc'}}>admin</a>
     </div>
   )
 }
